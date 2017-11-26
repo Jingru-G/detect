@@ -1,0 +1,52 @@
+import os
+import cv2
+import time
+
+NegPath='C:\\detectProject\\Neg\\Negdata'
+
+for root, dirs, files in os.walk(NegPath):
+    for negData in files:
+        print negData
+        myfile = open(NegPath+"\\"+negData)
+        allWords = []
+        line = myfile.readline()
+        i=0
+        c=0
+        while line:
+            if(c>1480):break
+            rec = line.split(',')
+            c = c + 1
+            if(c%3==0):
+                for i in range(0,len(rec)-1):
+                    data=rec[i].split(' ')
+                    xmin=data[0]
+                    ymin=int(data[1])+140
+                    xmax=data[2]
+                    ymax=int(data[3])+140
+                    model=data[4].split('_')
+                    if(model[0]=="small" ):size='S'
+                    if(model[0]=="middle"):size='M'
+                    if(model[0]=="large" ):size='L'
+                    if(model[1]=="front" ):Model='front'
+                    if(model[1]=="side"):Model='side'
+                    if(model[1]=="ride" ):Model='ride'
+                    print xmin,xmax,ymin,ymax
+                    path="C:/detectProject/Neg/frame/"+str(c-1)+".jpg"
+                    img = cv2.imread(path)
+                   # cv2.waitKey(0)
+                    if( not img is None):
+                        img2 = img[int(ymin):int(ymax), int(xmin):int(xmax)]
+                        if(size=='S'):
+                            img2=cv2.resize(img2,(50,100))
+                        if(size=='M'):
+                            img2=cv2.resize(img2,(100,200))
+                        if(size=='L'):
+                            img2=cv2.resize(img2,(200,400))
+                        if(not cv2.imwrite("C:/detectProject/Neg/Negcut/" + Model+"/"+ size+str(c-1)+'FILE'+ str(i)+time.strftime(('-%m-%d-%H-%M'),time.localtime(time.time())) +'.jpg', img2) is None):
+                            print "C:/detectProject/Neg/Negcut/" + Model+"/"+  size+str(c-1)+'FILE'+ str(i)+time.strftime(('-%m-%d-%H-%M'),time.localtime(time.time())) +'.jpg'
+                    # if word[-1] == ',':
+                    #     #allWords.append(word[:-1])
+                    # else:
+                    #     allWords.append(word)
+            line = myfile.readline()
+    myfile.close()
